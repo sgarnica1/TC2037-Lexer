@@ -1,0 +1,40 @@
+@import url("https://fonts.googleapis.com/css2?family=Anuphan:wght@400;500&display=swap");
+
+body {
+  font-family: "Anuphan", sans-serif;
+  background: #22272e;
+}
+
+.keyword {
+  color: #f75344;
+}
+
+.operator {
+  color: #e6adfc;
+  margin: 0 -7px;
+  display: inline-block;
+}
+
+.delimiter {
+  color: #3dc0f3;
+  margin: 0 -7px;
+  display: inline-block;
+}
+
+.comment {
+  color: #888888;
+}
+
+.string {
+  color: #8ce67a;
+  margin-right: -7px;
+  display: inline-block;
+}
+
+.number {
+  color: #54b6ff;
+}
+
+.identifier {
+  color: #ff8e5a;
+}
