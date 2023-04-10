@@ -123,7 +123,7 @@
 ;;; Tokenizes a given line
 ;;; @param line Line to tokenize
 ;;; @return List of tokens
-(define (tokenize-line line)
+(define (tokenize-line line open-block-comment)
     (define word '())
     (define list-line '())
     (define tokenized-line '())
@@ -135,14 +135,15 @@
     ; Split the line into characters
     (define chars (regexp-split #px"" line))
 
-    (for/last ([char chars])
-
+     (for/last ([char chars])
       ; If no match is found in the last character, add the word to the list
-      (if (eq? char (last chars))
-        (set! list-line (append list-line (list word)))
-        0)
+      (when (and (eq? char (last chars)) (or open-line-comment open-block-comment))
+        (set! list-line (append list-line (list word))))
+
       ; Match the character with the regular expressions
       (cond 
+        [open-block-comment (set! word (append word (list char)))]
+
         [(regexp-match? #rx"[a-zA-Z0-9_]" char)
          (set! word (append word (list char)))]
 
@@ -192,9 +193,12 @@
             (set! word '())))])
     )
 
+
     (define tokens (map (lambda (x) (string-join x "")) list-line))
+
     (for ([token tokens])
         (define token-type (classify-token token))
+        (when open-block-comment (set! token-type "comment"))
         (if token-type
             (set! tokenized-line (append tokenized-line 
                                  (list (highlight-token token token-type))))
@@ -245,17 +249,28 @@
   (define html-header "<html><head><title>C# Lexer</title><link rel='stylesheet' href='style.css' type='text/css' /></head><body>")
   (define html-footer "</body></html>")
   (write-string html-header output-port)
+
+  (define open-block-comment #f)
+
   (for-each (lambda (line)
               (write-string (string-append "<pre>") output-port)
 
-              (define tokens (tokenize-line line))
+              (when (not open-block-comment) 
+                  (set! open-block-comment (regexp-match? #px"/\\*" line)))
+                  
+              (define tokens (tokenize-line line open-block-comment))
               (define formatted-line (string-join tokens " "))
+
+              (when open-block-comment
+                  (set! open-block-comment (not (regexp-match? #px"\\*/" line))))
 
               (write-string (string-append formatted-line " ") output-port)
               (write-string (string-append "</pre>\n") output-port))
             input-lines)
+  
   (write-string html-footer output-port)
   (close-output-port output-port))
+
 
 ;;; @brief
 ;;; Calling the main function

@@ -2,6 +2,10 @@ using System;
 
 // This is a line comment
 
+/*
+ * This is a block comment
+ */
+
 class Program
 {
     static void Main(string[] args)
