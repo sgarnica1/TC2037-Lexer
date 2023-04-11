@@ -27,7 +27,7 @@
 ;;; Defining the constants for the lexer
 (define keywords
   (list 
-    "abstract" "as" "base" "bool" "break" "byte" "case" "catch" "char" "checked" "class" "const" "continue" "decimal" "default" "delegate" "do" "double" "else" "enum" "event" "explicit" "extern" "false" "finally" "fixed" "float" "for" "foreach" "goto" "if" "implicit" "in" "int" "interface" "internal" "is" "lock" "long" "namespace" "new" "null" "object" "operator" "out" "override" "params" "private" "protected" "public" "readonly" "ref" "return" "sbyte" "sealed" "short" "sizeof" "stackalloc" "static" "string" "struct" "switch" "this" "throw" "true" "try" "typeof" "uint" "ulong" "unchecked" "unsafe" "ushort" "using" "virtual" "void" "volatile" "while"
+    "abstract" "as" "base" "bool" "break" "byte" "case" "catch" "char" "checked" "class" "const" "continue" "decimal" "default" "delegate" "do" "double" "else" "endif" "enum" "event" "explicit" "extern" "false" "finally" "fixed" "float" "for" "foreach" "goto" "if" "implicit" "in" "int" "interface" "internal" "is" "lock" "long" "namespace" "new" "null" "object" "operator" "out" "override" "params" "private" "protected" "public" "readonly" "ref" "return" "sbyte" "sealed" "short" "sizeof" "stackalloc" "static" "string" "struct" "switch" "this" "throw" "true" "try" "typeof" "uint" "ulong" "unchecked" "unsafe" "ushort" "using" "virtual" "void" "volatile" "while" "#if" "#endif" "#else"
    )
 )
 
@@ -70,11 +70,11 @@
     (cond
         [(regexp-match #rx"//." token) "comment"]
         [(regexp-match #rx"/*.*/" token) "comment"]
-        [(member token keywords) "keyword"]
         [(member token operators) "operator"]
+        [(member token keywords) "keyword"]
         [(member token delimiters) "delimiter"]
         [(regexp-match? #rx"^\".*\"$" token) "string"]
-        [(regexp-match? #rx"^[0-9]+$" token) "number"]
+        [(regexp-match? #rx"^[0-9x]+$" token) "number"]
         [(regexp-match? #rx"^[a-zA-Z_][a-zA-Z0-9_]*$" token) "identifier"]
         [else #f]
     )
@@ -144,6 +144,8 @@
       (cond 
         [open-block-comment (set! word (append word (list char)))]
 
+        [(regexp-match #rx"#" char) (set! word (append word (list char)))]
+
         [(regexp-match? #rx"[a-zA-Z0-9_]" char)
          (set! word (append word (list char)))]
 
@@ -192,7 +194,6 @@
             (set! list-line (append list-line (list word)))
             (set! word '())))])
     )
-
 
     (define tokens (map (lambda (x) (string-join x "")) list-line))
 
@@ -246,7 +247,7 @@
 (define (main input-file output-file)
   (define input-lines (file->lines input-file))
   (define output-port (open-output-file output-file))
-  (define html-header "<html><head><title>C# Lexer</title><link rel='stylesheet' href='style.css' type='text/css' /></head><body>")
+  (define html-header "<html><head><title>C# Lexer</title><link rel='stylesheet' href='./style.css' type='text/css' /></head><body>")
   (define html-footer "</body></html>")
   (write-string html-header output-port)
 
@@ -274,4 +275,4 @@
 
 ;;; @brief
 ;;; Calling the main function
-(main "main.cs" "index.html")
+(main "index.cs" "index.html")
