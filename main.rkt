@@ -275,4 +275,4 @@
 
 ;;; @brief
 ;;; Calling the main function
-(main "index.cs" "index.html")
+(main "test.cs" "test.html")
